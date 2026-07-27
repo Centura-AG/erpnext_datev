@@ -429,7 +429,7 @@ def get_customers(filters):
 
 		FROM `tabCustomer` cus
 
-			left join `tabParty Account` par
+			join `tabParty Account` par
 			on par.parent = cus.name
 			and par.parenttype = 'Customer'
 			and par.company = %(company)s
@@ -496,7 +496,7 @@ def get_suppliers(filters):
 
 		FROM `tabSupplier` sup
 
-			left join `tabParty Account` par
+			join `tabParty Account` par
 			on par.parent = sup.name
 			and par.parenttype = 'Supplier'
 			and par.company = %(company)s
