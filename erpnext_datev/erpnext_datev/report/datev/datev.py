@@ -330,11 +330,11 @@ def run_query(filters, extra_fields, extra_joins, extra_filters, as_dict=1):
 	query = """
 		SELECT
 
-			/* either debit or credit amount; always positive */
-			case ROUND(gl.debit, 2) when 0 then ROUND(gl.credit, 2) else ROUND(gl.debit, 2) end as 'Umsatz (ohne Soll/Haben-Kz)',
+			/* net amount of debit and credit; always positive */
+			ABS(ROUND(gl.debit - gl.credit, 2)) as 'Umsatz (ohne Soll/Haben-Kz)',
 
-			/* 'H' when credit, 'S' when debit */
-			case ROUND(gl.debit, 2) when 0 then 'H' else 'S' end as 'Soll/Haben-Kennzeichen',
+			/* 'S' when net debit, 'H' when net credit */
+			case when ROUND(gl.debit - gl.credit, 2) >= 0 then 'S' else 'H' end as 'Soll/Haben-Kennzeichen',
 
 			/* account number or, if empty, party account number */
 			acc.account_number as 'Konto',
@@ -373,6 +373,7 @@ def run_query(filters, extra_fields, extra_joins, extra_filters, as_dict=1):
 			{extra_joins}
 
 		WHERE gl.company = %(company)s
+		AND ROUND(gl.debit - gl.credit, 2) != 0
 		AND DATE(gl.posting_date) >= %(from_date)s
 		AND DATE(gl.posting_date) <= %(to_date)s
 
